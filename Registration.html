@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distributor Registration</title>
+  <style>
+  css
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  background: #f8f7f1;
+  color:#173b1a;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.form-card {
+  width: min(100%, 440px);
+  padding: 38px;
+  background: #ffffff;
+  border: 1px solid #d7e9e6;
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(20, 83, 78, 0.10);
+}
+
+.mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 22px;
+  border-radius: 12px;
+  background: #dff3ef;
+  color: #138a7e;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  color: #173b3a;
+}
+
+.intro {
+  margin: 9px 0 26px;
+  color: #6b7f7d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.field {
+  margin-bottom: 17px;
+}
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #294f4c;
+}
+
+input {
+  width: 100%;
+  height: 46px;
+  padding: 0 13px;
+  border: 1px solid #cfe0de;
+  border-radius: 8px;
+  outline: none;
+  color: #173b3a;
+  background: #ffffff;
+  font: inherit;
+  font-size: 14px;
+}
+
+input::placeholder {
+  color: #9aaead;
+}
+
+input:focus {
+  border-color: #15998d;
+  box-shadow: 0 0 0 3px rgba(21, 153, 141, 0.14);
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 65px;
+}
+
+.toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  color: #138a7e;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.toggle:hover {
+  color: #0d6f66;
+}
+
+.hint {
+  margin: 7px 0 0;
+  color: #819492;
+  font-size: 12px;
+}
+
+.submit {
+  width: 100%;
+  height: 47px;
+  margin-top: 5px;
+  border: 0;
+  border-radius: 8px;
+  background: #138a7e;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.submit:hover {
+  background: #0d6f66;
+}
+
+.terms {
+  margin: 17px 0 0;
+  color: #819492;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 28px 22px;
+  }
+}
+  </style>
+</head>
+<body>
+  <main class="form-card">
+    <div class="mark" aria-hidden="true"></div>
+    <h1>Become a distributor</h1>
+    <p class="intro">Create your account to get started. Enter your details below.</p>
+    <form action="#" method="post">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" autocomplete="name" placeholder="e.g. Jordan Lee" required>
+      </div>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+      </div>
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 (555) 000-0000" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-field">
+          <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Create a password" required>
+          <button class="toggle" type="button" aria-controls="password" aria-label="Show password">Show</button>
+        </div>
+        <p class="hint">Use at least 8 characters.</p>
+      </div>
+      <button class="submit" type="submit">Create distributor account</button>
+      <p class="terms">By creating an account, you agree to our Terms of Service and Privacy Policy.</p>
+    </form>
+  </main>
+  <script>
+    const password = document.querySelector('#password');
+    const toggle = document.querySelector('.toggle');
+    toggle.addEventListener('click', () => {
+      const show = password.type === 'password';
+      password.type = show ? 'text' : 'password';
+      toggle.textContent = show ? 'Hide' : 'Show';
+      toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+  </script>
+</body>
+</html>
