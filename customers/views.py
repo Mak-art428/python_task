@@ -31,5 +31,12 @@ def update_customer(request, id):
         'customers/update.html',
         {'customer': customer}
     )
+def delete_customer(request, id):
+    customer = get_object_or_404(Customer, id=id)
 
+    if request.method == 'POST':
+        customer.delete()
+        return redirect('customer_list')
+
+    return redirect('customer_list')
 # Create your views here.
