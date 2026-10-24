@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Customer
+from .forms import ProductForm
 
 def customer_list(request):
 
@@ -39,4 +40,28 @@ def delete_customer(request, id):
         return redirect('customer_list')
 
     return redirect('customer_list')
+
+
+def add_product(request):
+    success = ''
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            form = ProductForm()
+            success = 'Product added successfully!'
+    else:
+        form = ProductForm()
+
+    return render(
+        request,
+        'customers/add_product.html',
+        {
+            'form': form,
+            'success': success
+        }
+    )
+
 # Create your views here.
