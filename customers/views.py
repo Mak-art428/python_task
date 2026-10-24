@@ -1,5 +1,6 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Customer
+from .models import Customer, Product
 from .forms import ProductForm
 
 def customer_list(request):
@@ -63,5 +64,32 @@ def add_product(request):
             'success': success
         }
     )
+
+
+def product_list(request):
+    search = request.GET.get('search', '').strip()
+
+    products = Product.objects.all().order_by('id')
+
+    if search:
+        products = products.filter(
+            name__icontains=search
+        ) | products.filter(
+            category__icontains=search
+        )
+
+    paginator = Paginator(products, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        'customers/product_list.html',
+        {
+            'page_obj': page_obj,
+            'search': search
+        }
+    )
+
 
 # Create your views here.
