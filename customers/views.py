@@ -93,3 +93,23 @@ def product_list(request):
 
 
 # Create your views here.
+def update_product(request, id):
+    product = get_object_or_404(Product, id=id)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(
+        request,
+        'customers/update_product.html',
+        {
+            'form': form,
+            'product': product
+        }
+    )

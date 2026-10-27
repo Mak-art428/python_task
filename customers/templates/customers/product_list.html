@@ -99,6 +99,7 @@
                         <th>Price (₹)</th>
                         <th>Stock</th>
                         <th>GST (%)</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -111,6 +112,12 @@
                         <td>{{ product.price }}</td>
                         <td>{{ product.stock }}</td>
                         <td>{{ product.gst_rate }}</td>
+                        <td>
+    <a href="{% url 'update_product' product.id %}"
+       class="btn btn-sm btn-primary">
+        Update
+    </a>
+</td>
                     </tr>
                     {% empty %}
                     <tr>
