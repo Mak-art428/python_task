@@ -1,7 +1,9 @@
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Customer, Product
 from .forms import ProductForm
+
 
 def customer_list(request):
 
@@ -33,14 +35,15 @@ def update_customer(request, id):
         'customers/update.html',
         {'customer': customer}
     )
-def delete_customer(request, id):
-    customer = get_object_or_404(Customer, id=id)
+
+def delete_product(request, id):
+    product = get_object_or_404(Product, id=id)
 
     if request.method == 'POST':
-        customer.delete()
-        return redirect('customer_list')
+        product.delete()
+        messages.success(request, 'Product deleted successfully!')
 
-    return redirect('customer_list')
+    return redirect('product_list')
 
 
 def add_product(request):
@@ -113,3 +116,12 @@ def update_product(request, id):
             'product': product
         }
     )
+
+def delete_customer(request, id):
+    customer = get_object_or_404(Customer, id=id)
+
+    if request.method == 'POST':
+        customer.delete()
+        return redirect('customer_list')
+
+    return redirect('customer_list')
