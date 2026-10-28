@@ -126,33 +126,40 @@ def delete_customer(request, id):
 
     return redirect('customer_list')
 
+
 def create_invoice(request):
+    products_data = list(
+        Product.objects.values('id', 'name', 'price', 'gst_rate')
+    )
+
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
 
         if form.is_valid():
-            customer  = form.cleaned_data['customer']
-            products = form.cleaned_data['products']
+            customer = form.cleaned_data['customer']
+            product = form.cleaned_data['product']
             quantity = form.cleaned_data['quantity']
 
             return render(
                 request,
                 'customers/create_invoice.html',
                 {
-                    'form' : form,
-                    'success' : 'Invoice created successfully!',
-                    'customer' : customer,
-                    'products' : products,
-                    'quantity' : quantity
+                    'form': form,
+                    'products_data': products_data,
+                    'success': 'Invoice form submitted successfully!',
+                    'customer': customer,
+                    'product': product,
+                    'quantity': quantity
                 }
             )
     else:
         form = InvoiceForm()
 
-        return render(
-            request,
-            'customers/create_invoice.html',
-            {
-                'form' : form
-            }
-        )
+    return render(
+        request,
+        'customers/create_invoice.html',
+        {
+            'form': form,
+            'products_data': products_data
+        }
+    )
