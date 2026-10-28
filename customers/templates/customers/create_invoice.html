@@ -19,8 +19,8 @@
             background: white;
             border-radius: 12px;
             padding: 30px;
-            margin: 50px auto;
-            max-width: 650px;
+            margin: 40px auto;
+            max-width: 900px;
             border: 1px solid #dce8f7;
         }
 
@@ -31,8 +31,16 @@
             margin-bottom: 25px;
         }
 
+        .product-row {
+            background: #f8faff;
+            border: 1px solid #dce8f7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
         .form-control, .form-select {
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -46,42 +54,69 @@
         </div>
 
         {% if success %}
-            <div class="alert alert-success">
-                {{ success }}
-            </div>
+        <div class="alert alert-success">{{ success }}</div>
         {% endif %}
 
-        <form method="POST">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            Please check the form fields and try again.
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        {{ products_data|json_script:"products-data" }}
+
+        <form method="POST" id="invoice-form">
             {% csrf_token %}
 
-            {{ form.as_p }}
+            <div class="mb-4">
+                <label class="form-label fw-bold">Select Customer</label>
+                {{ form.customer }}
+            </div>
 
-            <button type="submit" class="btn btn-primary">
-                Create Invoice
-            </button>
+            <hr>
 
-            <a href="{% url 'product_list' %}"
-               class="btn btn-secondary">
-                Cancel
-            </a>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Invoice Products</h5>
+                <button type="button" class="btn btn-success"
+                        id="add-product">
+                    + Add Product
+                </button>
+            </div>
+
+            <div id="product-rows"></div>
+
+            <div class="mt-4 p-3 border rounded bg-light">
+                <h5 class="mb-3">Invoice Calculation</h5>
+
+                <label for="discount" class="form-label">
+                    Discount (%)
+                </label>
+                <input type="number" id="discount"
+                       class="form-control"
+                       min="0" max="100" step="0.01" value="0">
+
+                <p>Total Subtotal: ₹<span id="subtotal">0.00</span></p>
+                <p>Total Discount: ₹<span id="discount-amount">0.00</span></p>
+                <p>Total GST: ₹<span id="gst-amount">0.00</span></p>
+
+                <hr>
+                <h4>Grand Total: ₹<span id="grand-total">0.00</span></h4>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    Create Invoice
+                </button>
+
+                <a href="{% url 'product_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
         </form>
-        
-{{ products_data|json_script:"products-data" }}
 
-<div class="mt-4 p-3 border rounded bg-light">
-    <h5 class="mb-3">Invoice Calculation</h5>
-
-    <label for="discount" class="form-label">Discount (%)</label>
-    <input type="number" id="discount" class="form-control"
-           min="0" max="100" value="0">
-
-    <p>Unit Price: ₹<span id="unit-price">0.00</span></p>
-    <p>Subtotal: ₹<span id="subtotal">0.00</span></p>
-    <p>GST Amount: ₹<span id="gst-amount">0.00</span></p>
-    <p>Discount Amount: ₹<span id="discount-amount">0.00</span></p>
-
-    <hr>
-    <h5>Grand Total: ₹<span id="grand-total">0.00</span></h5>
+    </div>
 </div>
 
 <script>
@@ -90,53 +125,166 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('products-data').textContent
     );
 
-    const productSelect = document.getElementById('id_product');
-    const quantityInput = document.getElementById('id_quantity');
+    const rowsContainer = document.getElementById('product-rows');
+    const addButton = document.getElementById('add-product');
     const discountInput = document.getElementById('discount');
 
-    function calculateTotal() {
-        const selectedProduct = products.find(
-            p => String(p.id) === productSelect.value
-        );
+    let rowCount = 0;
 
-        const price = selectedProduct ? Number(selectedProduct.price) : 0;
-        const gstRate = selectedProduct ? Number(selectedProduct.gst_rate) : 0;
-        const quantity = Math.max(1, Number(quantityInput.value) || 1);
-        const discountRate = Math.min(
-            100, Math.max(0, Number(discountInput.value) || 0)
-        );
+    function addProductRow() {
+        rowCount++;
 
-        const subtotal = price * quantity;
-        const discount = subtotal * discountRate / 100;
-        const taxableAmount = subtotal - discount;
-        const gstAmount = taxableAmount * gstRate / 100;
-        const total = taxableAmount + gstAmount;
+        const row = document.createElement('div');
+        row.className = 'product-row';
 
-        document.getElementById('unit-price').textContent = price.toFixed(2);
-        document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-        document.getElementById('discount-amount').textContent = discount.toFixed(2);
-        document.getElementById('gst-amount').textContent = gstAmount.toFixed(2);
-        document.getElementById('grand-total').textContent = total.toFixed(2);
+        const options = products.map(function (product) {
+            return `<option value="${product.id}">
+                ${product.name} - ₹${Number(product.price).toFixed(2)}
+            </option>`;
+        }).join('');
+
+        row.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <h6>Product ${rowCount}</h6>
+                <button type="button"
+                        class="btn btn-sm btn-danger remove-product">
+                    Remove
+                </button>
+            </div>
+
+            <label class="form-label">Product</label>
+            <select name="product" class="form-select product-select" required>
+                <option value="">Select Product</option>
+                ${options}
+            </select>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" name="quantity"
+                           class="form-control quantity-input"
+                           min="1" value="1" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Unit Price (₹)</label>
+                    <input type="text"
+                           class="form-control price-display"
+                           value="0.00" readonly>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">GST (%)</label>
+                    <input type="text"
+                           class="form-control gst-display"
+                           value="0" readonly>
+                </div>
+            </div>
+
+            <p class="mb-0 fw-bold">
+                Item Total: ₹<span class="item-total">0.00</span>
+            </p>
+        `;
+
+        rowsContainer.appendChild(row);
+
+        row.querySelector('.product-select')
+            .addEventListener('change', calculateTotal);
+
+        row.querySelector('.quantity-input')
+            .addEventListener('input', calculateTotal);
+
+        row.querySelector('.remove-product')
+            .addEventListener('click', function () {
+                row.remove();
+                calculateTotal();
+            });
+
+        calculateTotal();
     }
 
-    productSelect.addEventListener('change', calculateTotal);
-    quantityInput.addEventListener('input', calculateTotal);
+    function calculateTotal() {
+        let subtotal = 0;
+        let totalGst = 0;
+
+        document.querySelectorAll('.product-row').forEach(function (row) {
+            const select = row.querySelector('.product-select');
+            const quantityInput = row.querySelector('.quantity-input');
+
+            const product = products.find(function (item) {
+                return String(item.id) === select.value;
+            });
+
+            const price = product ? Number(product.price) : 0;
+            const gstRate = product ? Number(product.gst_rate) : 0;
+            const quantity = Math.max(1, Number(quantityInput.value) || 1);
+
+            const itemSubtotal = price * quantity;
+            const itemGst = itemSubtotal * gstRate / 100;
+
+            row.querySelector('.price-display').value = price.toFixed(2);
+            row.querySelector('.gst-display').value = gstRate.toFixed(2);
+            row.querySelector('.item-total').textContent =
+                (itemSubtotal + itemGst).toFixed(2);
+
+            subtotal += itemSubtotal;
+            totalGst += itemGst;
+        });
+
+        const discountRate = Math.min(
+            100,
+            Math.max(0, Number(discountInput.value) || 0)
+        );
+
+        const discount = subtotal * discountRate / 100;
+        const taxableAmount = subtotal - discount;
+
+        // Recalculate GST after applying the invoice discount.
+        let adjustedGst = 0;
+
+        document.querySelectorAll('.product-row').forEach(function (row) {
+            const select = row.querySelector('.product-select');
+            const quantity = Math.max(
+                1,
+                Number(row.querySelector('.quantity-input').value) || 1
+            );
+
+            const product = products.find(function (item) {
+                return String(item.id) === select.value;
+            });
+
+            if (product) {
+                const itemSubtotal = Number(product.price) * quantity;
+                const itemDiscount = subtotal > 0
+                    ? discount * itemSubtotal / subtotal
+                    : 0;
+
+                adjustedGst +=
+                    (itemSubtotal - itemDiscount) *
+                    Number(product.gst_rate) / 100;
+            }
+        });
+
+        document.getElementById('subtotal').textContent =
+            subtotal.toFixed(2);
+
+        document.getElementById('discount-amount').textContent =
+            discount.toFixed(2);
+
+        document.getElementById('gst-amount').textContent =
+            adjustedGst.toFixed(2);
+
+        document.getElementById('grand-total').textContent =
+            (taxableAmount + adjustedGst).toFixed(2);
+    }
+
+    addButton.addEventListener('click', addProductRow);
     discountInput.addEventListener('input', calculateTotal);
 
-    calculateTotal();
+    // Start with one product row.
+    addProductRow();
 });
 </script>
 
-
-        {% if customer and product %}
-            <hr>
-            <h5>Submitted Details</h5>
-            <p><strong>Customer:</strong> {{ customer }}</p>
-            <p><strong>Product:</strong> {{ product }}</p>
-            <p><strong>Quantity:</strong> {{ quantity }}</p>
-        {% endif %}
-
-    </div>
-</div>
 </body>
 </html>
