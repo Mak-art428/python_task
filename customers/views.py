@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Customer, Product
-from .forms import ProductForm
+from .forms import ProductForm, InvoiceForm 
 
 
 def customer_list(request):
@@ -125,3 +125,34 @@ def delete_customer(request, id):
         return redirect('customer_list')
 
     return redirect('customer_list')
+
+def create_invoice(request):
+    if request.method == 'POST':
+        form = InvoiceForm(request.POST)
+
+        if form.is_valid():
+            customer  = form.cleaned_data['customer']
+            products = form.cleaned_data['products']
+            quantity = form.cleaned_data['quantity']
+
+            return render(
+                request,
+                'customers/create_invoice.html',
+                {
+                    'form' : form,
+                    'success' : 'Invoice created successfully!',
+                    'customer' : customer,
+                    'products' : products,
+                    'quantity' : quantity
+                }
+            )
+    else:
+        form = InvoiceForm()
+
+        return render(
+            request,
+            'customers/create_invoice.html',
+            {
+                'form' : form
+            }
+        )

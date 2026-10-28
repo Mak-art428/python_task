@@ -1,6 +1,6 @@
 
 from django import forms
-from .models import Product
+from .models import  Customer, Product 
 
 
 class ProductForm(forms.ModelForm):
@@ -80,3 +80,22 @@ class ProductForm(forms.ModelForm):
             )
 
         return gst
+    
+class InvoiceForm(forms.Form):
+    customer = forms.ModelChoiceField(
+        queryset=Customer.objects.all(),
+        empty_label="select customer",
+        label="Customer"
+    )
+
+    product = forms.ModelChoiceField(
+        queryset=Product.objects.all(),
+        empty_label="select Product",
+        label="Product"
+    )
+
+    quantity = forms.IntegerField(
+        min_value = 1,
+        initial = 1,
+        label = "Quantity"
+    )
