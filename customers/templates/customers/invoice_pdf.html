@@ -1,0 +1,113 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #eaf2ff;
+            padding: 15px;
+        }
+
+        h2 {
+            color: #2456a6;
+        }
+
+        .details {
+            margin-top: 25px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #cccccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #eaf2ff;
+        }
+
+        .total {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>ADVANCE BILLING SYSTEM</h2>
+        <h3>INVOICE</h3>
+    </div>
+
+    <div class="details">
+        <p><strong>Invoice Number:</strong> {{ invoice.invoice_number }}</p>
+        <p><strong>Invoice Date:</strong> {{ invoice.invoice_date|date:"d-m-Y" }}</p>
+
+        <h3>Customer Details</h3>
+        <p><strong>Name:</strong> {{ invoice.customer.name }}</p>
+        <p><strong>Email:</strong> {{ invoice.customer.email }}</p>
+        <p><strong>Phone:</strong> {{ invoice.customer.phone_number }}</p>
+        <p><strong>Address:</strong> {{ invoice.customer.address }}</p>
+    </div>
+
+    <h3>Product Details</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>Rs. {{ item.unit_price }}</td>
+                <td>Rs. {{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        Grand Total: Rs. {{ invoice.total_amount }}
+    </div>
+
+    <div class="footer">
+        <p>Thank you for your business!</p>
+    </div>
+
+</body>
+</html>
+```

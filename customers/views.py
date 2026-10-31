@@ -4,6 +4,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from decimal import Decimal, InvalidOperation
 from uuid import uuid4
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
 
 from .models import Customer, Product, Invoice, InvoiceItem
 from .forms import ProductForm, InvoiceForm 
@@ -232,5 +236,40 @@ def create_invoice(request):
         {
             'form': form,
             'products_data': products_data
+        }
+    )
+
+def generate_invoice_pdf(request, id):
+    invoice = get_object_or_404(Invoice, id=id)
+
+    template_path = 'customers/invoice_pdf.html'
+    context = {
+        'invoice': invoice,
+        'items': invoice.items.all(),
+    }
+
+    template = get_template(template_path)
+    html = template.render(context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
+    )
+
+    pdf_status = pisa.CreatePDF(html, dest=response)
+
+    if pdf_status.err:
+        return HttpResponse('Error while generating PDF')
+
+    return response
+
+def invoice_list(request):
+    invoices = Invoice.objects.all().order_by('-id')
+
+    return render(
+        request,
+        'customers/invoice_list.html',
+        {
+            'invoices': invoices
         }
     )
