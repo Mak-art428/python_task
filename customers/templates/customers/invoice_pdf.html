@@ -1,84 +1,155 @@
-```html
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Invoice</title>
+    <title>Advance Billing System - Invoice</title>
 
     <style>
+        @page {
+            size: A4;
+            margin: 30px;
+        }
+
         body {
             font-family: Helvetica, sans-serif;
-            font-size: 12px;
-            color: #333;
+            font-size: 11px;
+            color: #333333;
         }
 
         .header {
-            text-align: center;
-            background-color: #eaf2ff;
-            padding: 15px;
+            background-color: #173b70;
+            color: white;
+            padding: 18px;
         }
 
-        h2 {
-            color: #2456a6;
+        .logo {
+            display: inline-block;
+            background-color: white;
+            color: #173b70;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px;
         }
 
-        .details {
-            margin-top: 25px;
-            margin-bottom: 20px;
+        .company-name {
+            font-size: 21px;
+            font-weight: bold;
+            margin-top: 8px;
         }
 
-        table {
+        .tagline {
+            font-size: 10px;
+            color: #e1eaff;
+        }
+
+        .invoice-title {
+            text-align: right;
+            font-size: 24px;
+            color: #173b70;
+            margin-top: 20px;
+        }
+
+        .details-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        .details-table td {
+            width: 50%;
+            padding: 10px;
+            vertical-align: top;
+            border: 1px solid #dddddd;
+        }
+
+        .section-title {
+            color: #173b70;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .product-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
 
-        th, td {
-            border: 1px solid #cccccc;
+        .product-table th {
+            background-color: #173b70;
+            color: white;
             padding: 10px;
             text-align: left;
         }
 
-        th {
-            background-color: #eaf2ff;
+        .product-table td {
+            border: 1px solid #dddddd;
+            padding: 10px;
         }
 
-        .total {
-            text-align: right;
+        .product-table tr:nth-child(even) {
+            background-color: #f1f5fb;
+        }
+
+        .total-box {
             margin-top: 20px;
+            text-align: right;
+            background-color: #eaf2ff;
+            padding: 15px;
             font-size: 16px;
             font-weight: bold;
+            color: #173b70;
         }
 
         .footer {
+            margin-top: 50px;
+            padding-top: 15px;
+            border-top: 2px solid #173b70;
             text-align: center;
-            margin-top: 40px;
-            color: #777777;
+            color: #666666;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- Company Branding -->
     <div class="header">
-        <h2>ADVANCE BILLING SYSTEM</h2>
-        <h3>INVOICE</h3>
+        <div class="logo">ABS</div>
+        <div class="company-name">ADVANCE BILLING SYSTEM</div>
+        <div class="tagline">Smart Billing | Easy Management</div>
     </div>
 
-    <div class="details">
-        <p><strong>Invoice Number:</strong> {{ invoice.invoice_number }}</p>
-        <p><strong>Invoice Date:</strong> {{ invoice.invoice_date|date:"d-m-Y" }}</p>
+    <div class="invoice-title">INVOICE</div>
 
-        <h3>Customer Details</h3>
-        <p><strong>Name:</strong> {{ invoice.customer.name }}</p>
-        <p><strong>Email:</strong> {{ invoice.customer.email }}</p>
-        <p><strong>Phone:</strong> {{ invoice.customer.phone_number }}</p>
-        <p><strong>Address:</strong> {{ invoice.customer.address }}</p>
+    <!-- Invoice and Customer Details -->
+    <table class="details-table">
+        <tr>
+            <td>
+                <div class="section-title">INVOICE DETAILS</div>
+                <p><strong>Invoice Number:</strong><br>
+                    {{ invoice.invoice_number }}</p>
+                <p><strong>Invoice Date:</strong><br>
+                    {{ invoice.invoice_date|date:"d-m-Y" }}</p>
+            </td>
+
+            <td>
+                <div class="section-title">BILL TO</div>
+                <p><strong>Name:</strong> {{ invoice.customer.name }}</p>
+                <p><strong>Email:</strong> {{ invoice.customer.email }}</p>
+                <p><strong>Phone:</strong> {{ invoice.customer.phone_number|default:"-" }}</p>
+                <p><strong>Address:</strong> {{ invoice.customer.address|default:"-" }}</p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Product Details -->
+    <div class="section-title" style="margin-top: 25px;">
+        PRODUCT DETAILS
     </div>
 
-    <h3>Product Details</h3>
-
-    <table>
+    <table class="product-table">
         <thead>
             <tr>
                 <th>Product</th>
@@ -96,18 +167,24 @@
                 <td>Rs. {{ item.unit_price }}</td>
                 <td>Rs. {{ item.subtotal }}</td>
             </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No products found.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <div class="total">
-        Grand Total: Rs. {{ invoice.total_amount }}
+    <!-- Grand Total -->
+    <div class="total-box">
+        GRAND TOTAL: Rs. {{ invoice.total_amount }}
     </div>
 
+    <!-- Footer -->
     <div class="footer">
-        <p>Thank you for your business!</p>
+        <p><strong>Thank You For Your Business!</strong></p>
+        <p>Generated by Advance Billing System</p>
     </div>
 
 </body>
 </html>
-```
