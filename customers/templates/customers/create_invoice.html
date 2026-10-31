@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,15 +53,22 @@
             <h3 class="mb-0">Create Invoice</h3>
         </div>
 
-        {% if success %}
-        <div class="alert alert-success">{{ success }}</div>
+        <!-- Django success and error messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
         {% endif %}
 
         {% if form.errors %}
-        <div class="alert alert-danger">
-            Please check the form fields and try again.
-            {{ form.errors }}
-        </div>
+            <div class="alert alert-danger">
+                Please check the form fields and try again.
+                {{ form.errors }}
+            </div>
         {% endif %}
 
         {{ products_data|json_script:"products-data" }}
@@ -92,9 +99,15 @@
                 <label for="discount" class="form-label">
                     Discount (%)
                 </label>
-                <input type="number" id="discount"
+
+                <input type="number"
+                       id="discount"
+                       name="discount"
                        class="form-control"
-                       min="0" max="100" step="0.01" value="0">
+                       min="0"
+                       max="100"
+                       step="0.01"
+                       value="0">
 
                 <p>Total Subtotal: ₹<span id="subtotal">0.00</span></p>
                 <p>Total Discount: ₹<span id="discount-amount">0.00</span></p>
@@ -119,8 +132,11 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const products = JSON.parse(
         document.getElementById('products-data').textContent
     );
@@ -153,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <label class="form-label">Product</label>
+
             <select name="product" class="form-select product-select" required>
                 <option value="">Select Product</option>
                 ${options}
@@ -204,10 +221,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function calculateTotal() {
+
         let subtotal = 0;
-        let totalGst = 0;
 
         document.querySelectorAll('.product-row').forEach(function (row) {
+
             const select = row.querySelector('.product-select');
             const quantityInput = row.querySelector('.quantity-input');
 
@@ -224,11 +242,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             row.querySelector('.price-display').value = price.toFixed(2);
             row.querySelector('.gst-display').value = gstRate.toFixed(2);
+
             row.querySelector('.item-total').textContent =
                 (itemSubtotal + itemGst).toFixed(2);
 
             subtotal += itemSubtotal;
-            totalGst += itemGst;
         });
 
         const discountRate = Math.min(
@@ -239,11 +257,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const discount = subtotal * discountRate / 100;
         const taxableAmount = subtotal - discount;
 
-        // Recalculate GST after applying the invoice discount.
         let adjustedGst = 0;
 
         document.querySelectorAll('.product-row').forEach(function (row) {
+
             const select = row.querySelector('.product-select');
+
             const quantity = Math.max(
                 1,
                 Number(row.querySelector('.quantity-input').value) || 1
@@ -254,7 +273,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (product) {
+
                 const itemSubtotal = Number(product.price) * quantity;
+
                 const itemDiscount = subtotal > 0
                     ? discount * itemSubtotal / subtotal
                     : 0;
@@ -279,12 +300,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     addButton.addEventListener('click', addProductRow);
+
     discountInput.addEventListener('input', calculateTotal);
 
-    // Start with one product row.
     addProductRow();
 });
 </script>
 
 </body>
 </html>
+```

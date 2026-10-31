@@ -84,10 +84,10 @@ class ProductForm(forms.ModelForm):
 class InvoiceForm(forms.Form):
     customer = forms.ModelChoiceField(
         queryset=Customer.objects.all(),
-        empty_label="select customer",
+        empty_label="Select Customer",
         label="Customer"
     )
-
+    
     product = forms.ModelChoiceField(
         queryset=Product.objects.all(),
         empty_label="select Product",

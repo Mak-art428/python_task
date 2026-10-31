@@ -1,7 +1,11 @@
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Customer, Product
+from django.db import transaction
+from decimal import Decimal, InvalidOperation
+from uuid import uuid4
+
+from .models import Customer, Product, Invoice, InvoiceItem
 from .forms import ProductForm, InvoiceForm 
 
 
@@ -137,21 +141,88 @@ def create_invoice(request):
 
         if form.is_valid():
             customer = form.cleaned_data['customer']
-            product = form.cleaned_data['product']
-            quantity = form.cleaned_data['quantity']
 
-            return render(
-                request,
-                'customers/create_invoice.html',
-                {
-                    'form': form,
-                    'products_data': products_data,
-                    'success': 'Invoice form submitted successfully!',
-                    'customer': customer,
-                    'product': product,
-                    'quantity': quantity
-                }
-            )
+            product_ids = request.POST.getlist('product')
+            quantities = request.POST.getlist('quantity')
+            discount_rate = request.POST.get('discount', '0')
+
+            try:
+                discount_rate = Decimal(discount_rate)
+
+                if discount_rate < 0 or discount_rate > 100:
+                    raise ValueError
+
+                if not product_ids or len(product_ids) != len(quantities):
+                    raise ValueError
+
+                invoice_items = []
+                subtotal = Decimal('0.00')
+
+                for product_id, quantity_value in zip(product_ids, quantities):
+                    product = Product.objects.get(id=product_id)
+                    quantity = int(quantity_value)
+
+                    if quantity < 1:
+                        raise ValueError
+
+                    item_subtotal = product.price * quantity
+                    subtotal += item_subtotal
+
+                    invoice_items.append({
+                        'product': product,
+                        'quantity': quantity,
+                        'subtotal': item_subtotal
+                    })
+
+                discount_amount = subtotal * discount_rate / Decimal('100')
+                taxable_amount = subtotal - discount_amount
+
+                total_gst = Decimal('0.00')
+
+                for item in invoice_items:
+                    item_discount = (
+                        discount_amount * item['subtotal'] / subtotal
+                        if subtotal > 0 else Decimal('0.00')
+                    )
+
+                    taxable_item = item['subtotal'] - item_discount
+
+                    total_gst += (
+                        taxable_item * item['product'].gst_rate
+                        / Decimal('100')
+                    )
+
+                grand_total = taxable_amount + total_gst
+
+                with transaction.atomic():
+                    invoice = Invoice.objects.create(
+                        customer=customer,
+                        invoice_number=f"INV-{uuid4().hex[:10].upper()}",
+                        total_amount=grand_total
+                    )
+
+                    for item in invoice_items:
+                        InvoiceItem.objects.create(
+                            invoice=invoice,
+                            product=item['product'],
+                            quantity=item['quantity'],
+                            unit_price=item['product'].price,
+                            subtotal=item['subtotal']
+                        )
+
+                messages.success(
+                    request,
+                    f'Invoice {invoice.invoice_number} created successfully!'
+                )
+
+                return redirect('create_invoice')
+
+            except (ValueError, InvalidOperation, Product.DoesNotExist):
+                messages.error(
+                    request,
+                    'Please select valid products, quantities and discount.'
+                )
+
     else:
         form = InvoiceForm()
 
