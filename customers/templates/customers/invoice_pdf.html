@@ -102,6 +102,16 @@
             color: #173b70;
         }
 
+        .qr-section {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .qr-section img {
+            width: 110px;
+            height: 110px;
+        }
+
         .footer {
             margin-top: 50px;
             padding-top: 15px;
@@ -179,6 +189,14 @@
     <div class="total-box">
         GRAND TOTAL: Rs. {{ invoice.total_amount }}
     </div>
+
+    <!-- Invoice QR Code -->
+    {% if invoice.qr_code %}
+    <div class="qr-section">
+        <p><strong>Scan QR Code for Invoice Details</strong></p>
+        <img src="{{ invoice.qr_code.path }}" alt="Invoice QR Code">
+    </div>
+    {% endif %}
 
     <!-- Footer -->
     <div class="footer">
