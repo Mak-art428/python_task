@@ -294,11 +294,23 @@ def invoice_list(request):
 
 
 def generate_invoice_qr(invoice):
+    product_summary = ""
+
+    for item in invoice.items.all():
+        product_summary += (
+            f"\nProduct: {item.product.name}"
+            f"\nQuantity: {item.quantity}"
+            f"\nPrice: Rs. {item.unit_price}"
+            f"\nSubtotal: Rs. {item.subtotal}\n"
+        )
+
     qr_data = (
         f"Invoice Number: {invoice.invoice_number}\n"
         f"Customer Name: {invoice.customer.name}\n"
+        f"Invoice Date: {invoice.invoice_date.strftime('%d-%m-%Y')}\n"
         f"Product Count: {invoice.items.count()}\n"
-        f"Total Amount: Rs. {invoice.total_amount}"
+        f"Product Summary:\n{product_summary}"
+        f"Total Bill: Rs. {invoice.total_amount}"
     )
 
     qr = qrcode.make(qr_data)
@@ -310,3 +322,15 @@ def generate_invoice_qr(invoice):
         buffer.getvalue(),
         name=f"invoice_{invoice.id}.png"
     )
+
+def regenerate_all_invoice_qr():
+    invoices = Invoice.objects.all()
+
+    for invoice in invoices:
+        qr_file = generate_invoice_qr(invoice)
+
+        invoice.qr_code.save(
+            f"invoice_{invoice.id}.png",
+            qr_file,
+            save=True
+        )
