@@ -26,6 +26,7 @@ class Product(models.Model):
         return self.name
 
 
+
 class Invoice(models.Model):
     customer = models.ForeignKey(
         Customer,
@@ -38,6 +39,11 @@ class Invoice(models.Model):
         max_digits=10,
         decimal_places=2,
         default=0
+    )
+    qr_code = models.ImageField(
+        upload_to='invoice_qr_codes/',
+        blank=True,
+        null=True
     )
 
     def __str__(self):

@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +20,7 @@
             padding: 30px;
             border-radius: 12px;
             margin: 40px auto;
-            max-width: 1100px;
+            max-width: 1200px;
             border: 1px solid #dce8f7;
         }
 
@@ -29,6 +29,12 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 25px;
+        }
+
+        .qr-image {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -49,13 +55,15 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover align-middle">
+
                 <thead class="table-primary">
                     <tr>
                         <th>Invoice Number</th>
                         <th>Customer</th>
                         <th>Invoice Date</th>
                         <th>Total Amount</th>
+                        <th>QR Code</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -64,9 +72,23 @@
                     {% for invoice in invoices %}
                     <tr>
                         <td>{{ invoice.invoice_number }}</td>
+
                         <td>{{ invoice.customer.name }}</td>
+
                         <td>{{ invoice.invoice_date|date:"d-m-Y" }}</td>
+
                         <td>₹{{ invoice.total_amount }}</td>
+
+                        <td class="text-center">
+                            {% if invoice.qr_code %}
+                                <img src="{{ invoice.qr_code.url }}"
+                                     alt="Invoice QR Code"
+                                     class="qr-image">
+                            {% else %}
+                                <span class="text-muted">Not Available</span>
+                            {% endif %}
+                        </td>
+
                         <td>
                             <a href="{% url 'generate_invoice_pdf' invoice.id %}"
                                class="btn btn-primary btn-sm">
@@ -74,16 +96,61 @@
                             </a>
                         </td>
                     </tr>
+
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center">
+                        <td colspan="6" class="text-center">
                             No invoices found.
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
+
             </table>
         </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Invoice pagination">
+            <ul class="pagination justify-content-center">
+
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.previous_page_number }}">
+                        Previous
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.next_page_number }}">
+                        Next
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+        {% endif %}
 
         <a href="{% url 'product_list' %}" class="btn btn-secondary">
             Back to Products
@@ -94,4 +161,3 @@
 
 </body>
 </html>
-

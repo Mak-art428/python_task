@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path('customers/', views.customer_list, name='customer_list'),   
     path('customers/update/<int:id>/', views.update_customer, name='update_customer'),
@@ -13,4 +14,5 @@ urlpatterns = [
 
     path('invoices/', views.invoice_list, name='invoice_list'),
     path('invoices/<int:id>/', views.generate_invoice_pdf, name='generate_invoice_pdf'),
+
 ]

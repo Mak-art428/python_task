@@ -7,6 +7,9 @@ from uuid import uuid4
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
 
 
 from .models import Customer, Product, Invoice, InvoiceItem
@@ -135,6 +138,7 @@ def delete_customer(request, id):
     return redirect('customer_list')
 
 
+
 def create_invoice(request):
     products_data = list(
         Product.objects.values('id', 'name', 'price', 'gst_rate')
@@ -214,6 +218,14 @@ def create_invoice(request):
                             subtotal=item['subtotal']
                         )
 
+                    # Generate and save QR code
+                    qr_file = generate_invoice_qr(invoice)
+                    invoice.qr_code.save(
+                        f"invoice_{invoice.id}.png",
+                        qr_file,
+                        save=True
+                    )
+
                 messages.success(
                     request,
                     f'Invoice {invoice.invoice_number} created successfully!'
@@ -263,13 +275,38 @@ def generate_invoice_pdf(request, id):
 
     return response
 
+
 def invoice_list(request):
     invoices = Invoice.objects.all().order_by('-id')
+
+    paginator = Paginator(invoices, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(
         request,
         'customers/invoice_list.html',
         {
-            'invoices': invoices
+            'invoices': page_obj,
+            'page_obj': page_obj
         }
+    )
+
+
+def generate_invoice_qr(invoice):
+    qr_data = (
+        f"Invoice Number: {invoice.invoice_number}\n"
+        f"Customer Name: {invoice.customer.name}\n"
+        f"Product Count: {invoice.items.count()}\n"
+        f"Total Amount: Rs. {invoice.total_amount}"
+    )
+
+    qr = qrcode.make(qr_data)
+
+    buffer = BytesIO()
+    qr.save(buffer, format="PNG")
+
+    return ContentFile(
+        buffer.getvalue(),
+        name=f"invoice_{invoice.id}.png"
     )
