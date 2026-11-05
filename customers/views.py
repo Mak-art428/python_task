@@ -15,6 +15,11 @@ from django.core.files.base import ContentFile
 from .models import Customer, Product, Invoice, InvoiceItem
 from .forms import ProductForm, InvoiceForm 
 
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
 
 def customer_list(request):
 
@@ -334,3 +339,62 @@ def regenerate_all_invoice_qr():
             qr_file,
             save=True
         )
+
+
+@csrf_exempt
+@require_POST
+def admin_register_api(request):
+    try:
+        full_name = request.POST.get('full_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if not all([full_name, email, username, password, confirm_password]):
+            return JsonResponse({
+                'success': False,
+                'message': 'All fields are required.'
+            }, status=400)
+
+        if password != confirm_password:
+            return JsonResponse({
+                'success': False,
+                'message': 'Passwords do not match.'
+            }, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                'success': False,
+                'message': 'Username already exists.'
+            }, status=400)
+
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({
+                'success': False,
+                'message': 'Email already exists.'
+            }, status=400)
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=full_name,
+            is_staff=True
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Admin registered successfully.',
+            'username': user.username
+        }, status=201)
+
+    except Exception:
+        return JsonResponse({
+            'success': False,
+            'message': 'Registration failed. Please try again.'
+        }, status=500)
+
+
+def admin_register_page(request):
+    return render(request, 'customers/admin_register.html')

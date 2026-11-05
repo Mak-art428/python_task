@@ -128,10 +128,8 @@
     </div>
 
     <!-- Registration Form -->
-    <form method="POST">
-
-        {% csrf_token %}
-
+    <form id="registerForm">
+        
         <div class="mb-3">
             <label class="form-label">Full Name</label>
             <input type="text"
@@ -201,6 +199,38 @@
     </div>
 
 </div>
+
+
+<script>
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    try {
+        const response = await fetch("/api/admin/register/", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.text();
+
+        console.log("Status:", response.status);
+        console.log("Response:", result);
+
+        alert("Status: " + response.status + "\n" + result);
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert("JavaScript Error: " + error.message);
+    }
+});
+</script>
+</body>
+</html>
+
+</body>
+</html>
 
 </body>
 </html>
