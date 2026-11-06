@@ -17,4 +17,9 @@ urlpatterns = [
 
     path('api/admin/register/', views.admin_register_api, name='admin_register_api'),
     path('register-admin/', views.admin_register_page, name='admin_register_page'),
+    path('api/admin/forgot-password/', views.admin_forgot_password_api, name='admin_forgot_password_api'),
+
+    path('api/admin/verify-otp/', views.admin_verify_otp_api, name='admin_verify_otp_api'),
+
+    path('api/admin/reset-password/', views.admin_reset_password_api, name='admin_reset_password_api'),
 ]

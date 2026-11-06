@@ -20,6 +20,13 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
+import secrets
+from datetime import timedelta
+from django.utils import timezone
+
+from .models import PasswordResetOTP
+
+from django.core.mail import send_mail
 
 def customer_list(request):
 
@@ -398,3 +405,157 @@ def admin_register_api(request):
 
 def admin_register_page(request):
     return render(request, 'customers/admin_register.html')
+
+
+@csrf_exempt
+@require_POST
+def admin_forgot_password_api(request):
+
+    email = request.POST.get('email', '').strip()
+
+    if not email:
+        return JsonResponse({
+            'success': False,
+            'message': 'Email is required.'
+        }, status=400)
+
+    user = User.objects.filter(
+        email__iexact=email,
+        is_staff=True
+    ).first()
+
+    # Same response whether the account exists or not
+    if user:
+        PasswordResetOTP.objects.filter(
+            user=user,
+            is_verified=False
+        ).delete()
+
+        otp = str(secrets.randbelow(9000) + 1000)
+
+        PasswordResetOTP.objects.create(
+            user=user,
+            otp=otp,
+            expires_at=timezone.now() + timedelta(minutes=5)
+        )
+        send_mail(
+             subject='Admin Password Reset OTP',
+             message=f"""
+             Hello {user.first_name},
+
+               Your password reset OTP is: {otp}  
+
+             This OTP is valid for 5 minutes.
+
+             Please do not share this OTP with anyone.
+
+             Thank you.
+        """,
+             from_email=None,
+             recipient_list=[user.email],
+             fail_silently=False,
+        )
+
+    return JsonResponse({
+        'success': True,
+        'message': 'If the admin account exists, password recovery instructions will be sent.'
+    }, status=200)
+
+@csrf_exempt
+@require_POST
+def admin_verify_otp_api(request):
+
+    email = request.POST.get('email', '').strip()
+    otp = request.POST.get('otp', '').strip()
+
+    if not email or not otp:
+        return JsonResponse({
+            'success': False,
+            'message': 'Email and OTP are required.'
+        }, status=400)
+
+    user = User.objects.filter(
+        email__iexact=email,
+        is_staff=True
+    ).first()
+
+    if not user:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid email or OTP.'
+        }, status=400)
+
+    otp_record = PasswordResetOTP.objects.filter(
+        user=user,
+        otp=otp,
+        is_verified=False,
+        expires_at__gt=timezone.now()
+    ).order_by('-created_at').first()
+
+    if not otp_record:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid or expired OTP.'
+        }, status=400)
+
+    otp_record.is_verified = True
+    otp_record.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'OTP verified successfully.'
+    }, status=200)
+
+@csrf_exempt
+@require_POST
+def admin_reset_password_api(request):
+
+    email = request.POST.get('email', '').strip()
+    otp = request.POST.get('otp', '').strip()
+    new_password = request.POST.get('new_password', '')
+
+    if not email or not otp or not new_password:
+        return JsonResponse({
+            'success': False,
+            'message': 'Email, OTP and new password are required.'
+        }, status=400)
+
+    if len(new_password) < 8:
+        return JsonResponse({
+            'success': False,
+            'message': 'Password must be at least 8 characters.'
+        }, status=400)
+
+    user = User.objects.filter(
+        email__iexact=email,
+        is_staff=True
+    ).first()
+
+    if not user:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid password reset request.'
+        }, status=400)
+
+    otp_record = PasswordResetOTP.objects.filter(
+        user=user,
+        otp=otp,
+        is_verified=True,
+        expires_at__gt=timezone.now()
+    ).order_by('-created_at').first()
+
+    if not otp_record:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid or expired OTP. Please verify OTP first.'
+        }, status=400)
+
+    user.set_password(new_password)
+    user.save()
+
+    PasswordResetOTP.objects.filter(user=user).delete()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Password reset successfully.'
+    }, status=200)

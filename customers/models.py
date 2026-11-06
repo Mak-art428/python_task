@@ -74,3 +74,17 @@ class InvoiceItem(models.Model):
 
     def __str__(self):
         return f"{self.invoice.invoice_number} - {self.product.name}"
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='password_reset_otps'
+    )
+    otp = models.CharField(max_length=4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"OTP for {self.user.username}"
