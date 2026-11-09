@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Registration</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #fff0f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(190, 100, 140, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #c45c86;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #f0c5d6;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #d979a0;
+        }
+
+        textarea {
+            height: 90px;
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #d979a0;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #c45c86;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>Customer Registration</h2>
+
+        <p class="subtitle">
+            Advance Billing System with QR
+        </p>
+
+        <form>
+
+            <label>Customer Name</label>
+            <input type="text" placeholder="Enter customer name">
+
+            <label>Email Address</label>
+            <input type="email" placeholder="Enter email address">
+
+            <label>Phone Number</label>
+            <input type="tel" placeholder="Enter phone number">
+
+            <label>Address</label>
+            <textarea placeholder="Enter complete address"></textarea>
+
+            <button type="button">
+                Register Customer
+            </button>
+
+        </form>
+
+        <div class="footer">
+            Advance Billing System © 2026
+        </div>
+
+    </div>
+
+</body>
+</html>
