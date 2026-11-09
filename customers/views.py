@@ -28,6 +28,12 @@ from .models import PasswordResetOTP
 
 from django.core.mail import send_mail
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import CustomerSerializer
+
+
 def customer_list(request):
 
     search = request.GET.get('search', '')
@@ -559,3 +565,22 @@ def admin_reset_password_api(request):
         'success': True,
         'message': 'Password reset successfully.'
     }, status=200)
+
+
+@api_view(['POST'])
+def customer_register_api(request):
+
+    serializer = CustomerSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+
+        return Response({
+            'message': 'Customer registered successfully!',
+            'data': serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+    return Response({
+        'message': 'Registration failed!',
+        'errors': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)

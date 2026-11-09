@@ -22,4 +22,9 @@ urlpatterns = [
     path('api/admin/verify-otp/', views.admin_verify_otp_api, name='admin_verify_otp_api'),
 
     path('api/admin/reset-password/', views.admin_reset_password_api, name='admin_reset_password_api'),
+
+    path('customers/', views.customer_list, name='customer_list'),
+
+    # Customer Registration API
+    path('api/customer/register/', views.customer_register_api, name='customer_register_api'),
 ]
