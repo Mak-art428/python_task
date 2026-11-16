@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 
 
 from .models import Customer, Product, Invoice, InvoiceItem
-from .forms import ProductForm, InvoiceForm 
+
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -32,6 +32,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CustomerSerializer
+from .forms import CustomerForm, ProductForm, InvoiceForm
 
 
 def admin_dashboard(request):
@@ -98,19 +99,24 @@ def update_customer(request, id):
     customer = get_object_or_404(Customer, id=id)
 
     if request.method == 'POST':
-        customer.name = request.POST.get('name', '')
-        customer.email = request.POST.get('email', '')
-        customer.phone_number = request.POST.get('phone_number', '')
-        customer.save()
+        form = CustomerForm(request.POST, instance=customer)
 
-        return redirect('customer_list')
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer updated successfully!')
+            return redirect('customer_list')
+
+    else:
+        form = CustomerForm(instance=customer)
 
     return render(
-        request, 
+        request,
         'customers/update.html',
-        {'customer': customer}
+        {
+            'form': form,
+            'customer': customer
+        }
     )
-
 
 def delete_product(request, id):
     if request.method == 'POST':
@@ -129,11 +135,16 @@ def add_product(request):
 
     if request.method == 'POST':
         form = ProductForm(request.POST)
-
+        
         if form.is_valid():
+            print("FORM VALID: True")
             form.save()
             form = ProductForm()
             success = 'Product added successfully!'
+        else:
+            print("FORM VALID: False")
+            print("FORM ERRORS:", form.errors)
+
     else:
         form = ProductForm()
 

@@ -2,7 +2,51 @@
 from django import forms
 from .models import  Customer, Product 
 
+class CustomerForm(forms.ModelForm):
 
+    class Meta:
+        model = Customer
+        fields = ['name', 'email', 'phone_number', 'address']
+
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter customer name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter email'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter 10-digit phone number'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter address'
+            }),
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+
+        if not name:
+            raise forms.ValidationError('Name is required.')
+
+        return name
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data['phone_number']
+
+        if not phone.isdigit() or len(phone) != 10:
+            raise forms.ValidationError(
+                'Enter a valid 10-digit phone number.'
+            )
+
+        return phone
+
+    
 class ProductForm(forms.ModelForm):
 
     class Meta:
@@ -60,7 +104,7 @@ class ProductForm(forms.ModelForm):
             )
 
         return price
-
+    
     def clean_stock(self):
         stock = self.cleaned_data['stock']
 
