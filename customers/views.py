@@ -65,14 +65,17 @@ def update_customer(request, id):
         {'customer': customer}
     )
 
-def delete_product(request, id):
-    product = get_object_or_404(Product, id=id)
 
+def delete_product(request, id):
     if request.method == 'POST':
+        product = get_object_or_404(Product, id=id)
         product.delete()
         messages.success(request, 'Product deleted successfully!')
+    else:
+        messages.error(request, 'Invalid request!')
 
     return redirect('product_list')
+
 
 
 def add_product(request):
