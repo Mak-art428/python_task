@@ -34,6 +34,52 @@ from rest_framework import status
 from .serializers import CustomerSerializer
 
 
+def admin_dashboard(request):
+    total_customers = Customer.objects.count()
+    total_products = Product.objects.count()
+    total_invoices = Invoice.objects.count()
+
+    total_sales = sum(
+        invoice.total_amount
+        for invoice in Invoice.objects.all()
+    )
+
+    context = {
+        'total_customers': total_customers,
+        'total_products': total_products,
+        'total_invoices': total_invoices,
+        'total_sales': total_sales,
+    }
+
+    return render(
+        request,
+        'customers/admin_dashboard.html',
+        context
+)
+
+def reports_page(request):
+    invoices = Invoice.objects.all().order_by('-id')
+
+    total_sales = sum(
+        invoice.total_amount for invoice in invoices
+    )
+
+    total_invoices = invoices.count()
+    total_products = Product.objects.count()
+
+    context = {
+        'invoices': invoices,
+        'total_sales': total_sales,
+        'total_invoices': total_invoices,
+        'total_products': total_products,
+    }
+
+    return render(
+        request,
+        'customers/reports.html',
+        context
+    )
+
 def customer_list(request):
 
     search = request.GET.get('search', '')

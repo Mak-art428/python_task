@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #fff0f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .dashboard-heading {
+            background: #fce4ec;
+            color: #9c4568;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border: 1px solid #f5c6d8;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+
+        .dashboard-card h5 {
+            color: #9c4568;
+        }
+
+        .dashboard-card h3 {
+            color: #74334f;
+        }
+
+        .btn-dashboard {
+            background: #e8a6c0;
+            color: white;
+            border: none;
+        }
+
+        .btn-dashboard:hover {
+            background: #d987a8;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+    <div class="dashboard-heading mb-4">
+        <h2>Admin Dashboard</h2>
+        <p class="mb-0">Welcome to Advance Billing System with QR</p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <h5>Total Customers</h5>
+                <h3>{{ total_customers }}</h3>
+                <a href="{% url 'customer_list' %}"
+                   class="btn btn-dashboard mt-2">
+                    View Customers
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <h5>Total Products</h5>
+                <h3>{{ total_products }}</h3>
+                <a href="{% url 'product_list' %}"
+                   class="btn btn-dashboard mt-2">
+                    View Products
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <h5>Total Invoices</h5>
+                <h3>{{ total_invoices }}</h3>
+                <a href="{% url 'invoice_list' %}"
+                   class="btn btn-dashboard mt-2">
+                    View Invoices
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <h5>Total Sales</h5>
+                <h3>₹{{ total_sales|floatformat:2 }}</h3>
+                <a href="{% url 'invoice_list' %}"
+                   class="btn btn-dashboard mt-2">
+                    View Sales
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <h5>Reports</h5>
+                <p>View sales, invoice and product reports.</p>
+                <a href="{% url 'reports_page' %}" class="btn btn-dashboard">
+    Reports
+</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

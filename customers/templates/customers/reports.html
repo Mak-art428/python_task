@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reports</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #fff0f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-card {
+            background: white;
+            border: 1px solid #f5c6d8;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 40px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .page-heading {
+            background-color: #fce4ec;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #9c4568;
+        }
+
+        .report-card {
+            background: white;
+            border: 1px solid #f5c6d8;
+            border-radius: 10px;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .report-card h5 {
+            color: #9c4568;
+        }
+
+        .report-card h3 {
+            color: #74334f;
+        }
+
+        .table thead th {
+            background-color: #f8d7e5;
+            color: #74334f;
+        }
+
+        .btn-report {
+            background-color: #e8a6c0;
+            color: white;
+            border: none;
+        }
+
+        .btn-report:hover {
+            background-color: #d987a8;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="main-card">
+
+        <div class="page-heading">
+            <h3>Reports Section</h3>
+            <p class="mb-0">Advance Billing System with QR</p>
+        </div>
+
+        <div class="mb-4">
+            <a href="{% url 'admin_dashboard' %}"
+               class="btn btn-report">
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5>Total Sales</h5>
+                    <h3>₹{{ total_sales|floatformat:2 }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5>Total Invoices</h5>
+                    <h3>{{ total_invoices }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5>Total Products</h5>
+                    <h3>{{ total_products }}</h3>
+                </div>
+            </div>
+
+        </div>
+
+        <h4 class="mb-3" style="color:#9c4568;">
+            Invoice Report
+        </h4>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for invoice in invoices %}
+
+                    <tr>
+                        <td>{{ invoice.invoice_number }}</td>
+                        <td>{{ invoice.customer.name }}</td>
+                        <td>{{ invoice.invoice_date|date:"d-m-Y" }}</td>
+                        <td>₹{{ invoice.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'generate_invoice_pdf' invoice.id %}"
+                               class="btn btn-sm btn-report">
+                                Download PDF
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            No invoice records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
