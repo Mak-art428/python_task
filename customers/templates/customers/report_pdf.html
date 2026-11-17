@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice Report</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            color: #9c4568;
+        }
+
+        .summary {
+            background-color: #fce4ec;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f8d7e5;
+            color: #74334f;
+        }
+
+        th, td {
+            border: 1px solid #d8a5ba;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Advance Billing System with QR</h2>
+    <h3>Invoice Report</h3>
+    
+    <div class="summary">
+
+        <p>
+            Start Date: {{ start_date|default:"All Dates" }}
+        </p>
+         <div class="mb-4">
+
+</div>
+        <p>
+            End Date: {{ end_date|default:"All Dates" }}
+        </p>
+
+        <p>
+            Total Invoices: {{ total_invoices }}
+        </p>
+
+        <p>
+            Total Amount Collected: Rs. {{ total_sales|floatformat:2 }}
+        </p>
+
+    </div>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Invoice Number</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for invoice in invoices %}
+
+            <tr>
+                <td>{{ invoice.invoice_number }}</td>
+                <td>{{ invoice.customer.name }}</td>
+                <td>{{ invoice.invoice_date|date:"d-m-Y" }}</td>
+                <td>Rs. {{ invoice.total_amount|floatformat:2 }}</td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="4">No invoice records found.</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</body>
+</html>

@@ -154,8 +154,21 @@
     </form>
 
 </div>
+  
+<!-- Download Complete Report PDF -->
+
+<div class="mb-4">
+
+    <a href="{% url 'download_report_pdf' %}?start_date={{ start_date }}&end_date={{ end_date }}"
+       class="btn btn-report">
+        Download Complete Report PDF
+    </a>
+
+</div>
+
 
         <div class="table-responsive">
+
 
             <table class="table table-bordered table-hover">
 

@@ -95,6 +95,48 @@ def reports_page(request):
         context
     )
 
+
+
+def download_report_pdf(request):
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    invoices = Invoice.objects.all().order_by('-id')
+
+    if start_date and end_date:
+        invoices = invoices.filter(
+            invoice_date__date__range=[start_date, end_date]
+        )
+
+    total_invoices = invoices.count()
+
+    total_sales = invoices.aggregate(
+        total=Sum('total_amount')
+    )['total'] or Decimal('0.00')
+
+    template = get_template('customers/report_pdf.html')
+
+    context = {
+        'invoices': invoices,
+        'total_invoices': total_invoices,
+        'total_sales': total_sales,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    html = template.render(context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="invoice_report.pdf"'
+
+    pdf_status = pisa.CreatePDF(html, dest=response)
+
+    if pdf_status.err:
+        return HttpResponse('PDF generation failed!')
+
+    return response
+
 def customer_list(request):
 
     search = request.GET.get('search', '')
