@@ -34,6 +34,9 @@ from rest_framework import status
 from .serializers import CustomerSerializer
 from .forms import CustomerForm, ProductForm, InvoiceForm
 
+from datetime import datetime
+from django.db.models import Sum
+
 
 def admin_dashboard(request):
     total_customers = Customer.objects.count()
@@ -58,21 +61,32 @@ def admin_dashboard(request):
         context
 )
 
+
 def reports_page(request):
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
     invoices = Invoice.objects.all().order_by('-id')
 
-    total_sales = sum(
-        invoice.total_amount for invoice in invoices
-    )
+    if start_date and end_date:
+        invoices = invoices.filter(
+            invoice_date__date__range=[start_date, end_date]
+        )
 
     total_invoices = invoices.count()
-    total_products = Product.objects.count()
+
+    total_sales = invoices.aggregate(
+        total=Sum('total_amount')
+    )['total'] or Decimal('0.00')
 
     context = {
         'invoices': invoices,
         'total_sales': total_sales,
         'total_invoices': total_invoices,
-        'total_products': total_products,
+        'total_products': Product.objects.count(),
+        'start_date': start_date,
+        'end_date': end_date,
     }
 
     return render(

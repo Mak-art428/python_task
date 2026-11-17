@@ -109,9 +109,51 @@
 
         </div>
 
-        <h4 class="mb-3" style="color:#9c4568;">
-            Invoice Report
-        </h4>
+        
+<!-- Date Range Filter Form -->
+
+<div class="report-card mb-4">
+
+    <h5 class="mb-3">Generate Invoice Report</h5>
+
+    <form method="GET">
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-4">
+                <label class="form-label">Start Date</label>
+                <input type="date"
+                       name="start_date"
+                       class="form-control"
+                       value="{{ start_date }}"
+                       required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">End Date</label>
+                <input type="date"
+                       name="end_date"
+                       class="form-control"
+                       value="{{ end_date }}"
+                       required>
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-report">
+                    Generate Report
+                </button>
+
+                <a href="{% url 'reports_page' %}"
+                   class="btn btn-secondary">
+                    Reset
+                </a>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
 
         <div class="table-responsive">
 
