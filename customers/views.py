@@ -38,6 +38,9 @@ from datetime import datetime
 from django.db.models import Sum
 
 
+import cv2
+import numpy as np
+
 def admin_dashboard(request):
     total_customers = Customer.objects.count()
     total_products = Product.objects.count()
@@ -725,3 +728,47 @@ def customer_register_api(request):
         'message': 'Registration failed!',
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+def decode_qr(request):
+
+    if request.method == 'POST' and request.FILES.get('qr_image'):
+
+        image_file = request.FILES['qr_image']
+
+        image_array = np.frombuffer(
+            image_file.read(),
+            np.uint8
+        )
+
+        image = cv2.imdecode(
+            image_array,
+            cv2.IMREAD_COLOR
+        )
+
+        if image is None:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid image file.'
+            })
+
+        detector = cv2.QRCodeDetector()
+
+        qr_data, points, _ = detector.detectAndDecode(image)
+
+        if qr_data:
+            return JsonResponse({
+                'status': 'success',
+                'qr_data': qr_data
+            })
+
+        return JsonResponse({
+            'status': 'error',
+            'message': 'No QR code found in image.'
+        })
+
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Please upload a QR code image.'
+    })

@@ -32,5 +32,6 @@ urlpatterns = [
     # Customer Registration API
     path('api/customer/register/', views.customer_register_api, name='customer_register_api'),
 
-
+    # for QR-Decode
+    path('decode-qr/', views.decode_qr, name='decode_qr'),
 ]
