@@ -62,17 +62,42 @@ def admin_dashboard(request):
 )
 
 
+
 def reports_page(request):
 
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    start_date = request.GET.get('start_date', '').strip()
+    end_date = request.GET.get('end_date', '').strip()
 
     invoices = Invoice.objects.all().order_by('-id')
 
-    if start_date and end_date:
-        invoices = invoices.filter(
-            invoice_date__date__range=[start_date, end_date]
-        )
+    if start_date or end_date:
+
+        if not start_date or not end_date:
+            messages.error(
+                request,
+                'Please select both start date and end date.'
+            )
+
+        else:
+            try:
+                start = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+                if start > end:
+                    messages.error(
+                        request,
+                        'Start date cannot be greater than end date.'
+                    )
+                else:
+                    invoices = invoices.filter(
+                        invoice_date__date__range=[start, end]
+                    )
+
+            except ValueError:
+                messages.error(
+                    request,
+                    'Please select valid dates.'
+                )
 
     total_invoices = invoices.count()
 
