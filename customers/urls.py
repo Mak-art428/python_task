@@ -34,4 +34,11 @@ urlpatterns = [
 
     # for QR-Decode
     path('decode-qr/', views.decode_qr, name='decode_qr'),
+
+
+    # Admin Login API
+path('api/admin/login/', views.admin_login_api, name='admin_login_api'),
+
+# Distributor Login API
+path('api/distributor/login/', views.distributor_login_api, name='distributor_login_api'),
 ]

@@ -16,6 +16,7 @@ from .models import Customer, Product, Invoice, InvoiceItem
 
 
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -772,3 +773,88 @@ def decode_qr(request):
         'status': 'error',
         'message': 'Please upload a QR code image.'
     })
+
+
+@csrf_exempt
+@require_POST
+def admin_login_api(request):
+
+    email = request.POST.get('email', '').strip()
+    password = request.POST.get('password', '')
+
+    if not email or not password:
+        return JsonResponse({
+            'success': False,
+            'message': 'Email and password are required.'
+        }, status=400)
+
+    user = User.objects.filter(
+        email__iexact=email,
+        is_staff=True
+    ).first()
+
+    if not user:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid email or password.'
+        }, status=401)
+
+    authenticated_user = authenticate(
+        request,
+        username=user.username,
+        password=password
+    )
+
+    if authenticated_user is None:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid email or password.'
+        }, status=401)
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Admin login successful.'
+    }, status=200)
+
+
+
+@csrf_exempt
+@require_POST
+def distributor_login_api(request):
+
+    email = request.POST.get('email', '').strip()
+    password = request.POST.get('password', '')
+
+    if not email or not password:
+        return JsonResponse({
+            'success': False,
+            'message': 'Email and password are required.'
+        }, status=400)
+
+    user = User.objects.filter(
+        username=email,
+        is_staff=False
+    ).first()
+
+    if not user or not hasattr(user, 'distributor_profile'):
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid email or password.'
+        }, status=401)
+
+    authenticated_user = authenticate(
+        request,
+        username=user.username,
+        password=password
+    )
+
+    if authenticated_user is None:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid email or password.'
+        }, status=401)
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Distributor login successful.'
+    }, status=200)

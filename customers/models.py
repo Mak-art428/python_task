@@ -5,6 +5,13 @@ from django.db import models
 class Customer(models.Model):
      name = models.CharField(max_length=100)
      email = models.EmailField(unique=True)
+     user = models.OneToOneField(
+    'auth.User',
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name='distributor_profile'
+)
      phone_number = models.CharField(max_length=15, blank=True, null=True)
      address = models.TextField(blank=True, null=True)
      created_at = models.DateTimeField(auto_now_add=True)
