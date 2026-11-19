@@ -16,7 +16,7 @@ from .models import Customer, Product, Invoice, InvoiceItem
 
 
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login,logout
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -810,7 +810,8 @@ def admin_login_api(request):
             'success': False,
             'message': 'Invalid email or password.'
         }, status=401)
-
+     
+    login(request, authenticated_user)
     return JsonResponse({
         'success': True,
         'message': 'Admin login successful.'
@@ -854,7 +855,18 @@ def distributor_login_api(request):
             'message': 'Invalid email or password.'
         }, status=401)
 
+    login(request, authenticated_user)
     return JsonResponse({
         'success': True,
         'message': 'Distributor login successful.'
+    }, status=200)
+
+@csrf_exempt
+@require_POST
+def logout_api(request):
+    logout(request)
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Logout successful.'
     }, status=200)
