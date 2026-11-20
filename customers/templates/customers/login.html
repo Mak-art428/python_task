@@ -69,14 +69,36 @@
             margin-top: 10px;
         }
 
-        #message {
-            margin-top: 15px;
-        }
+       #toast {
+    visibility: hidden;
+    min-width: 250px;
+    padding: 15px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    z-index: 1000;
+}
+
+#toast.success {
+    background: #28a745;
+}
+
+#toast.error {
+    background: #dc3545;
+}
+
+#toast.show {
+    visibility: visible;
+}
+        
     </style>
 </head>
 
 <body>
-
+<div id="toast"></div>
 <div class="login-box">
 
     <h2>Advance Billing System</h2>
@@ -120,7 +142,18 @@
             'active', role === 'distributor'
         );
     }
+    function showToast(message, type) {
+        
+    const toast = document.getElementById('toast');
 
+    toast.innerText = message;
+    toast.className = 'show ' + type;
+
+    setTimeout(function() {
+        toast.className = '';
+    }, 3000);
+}
+    
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -145,7 +178,11 @@
 
         const data = await response.json();
 
-        document.getElementById('message').innerText = data.message;
+        if (data.success) {
+         showToast(data.message, 'success');
+       } else {
+         showToast(data.message, 'error');
+  }
     });
 </script>
 

@@ -45,20 +45,36 @@
             cursor: pointer;
         }
 
-        #result {
-            margin-top: 25px;
-            padding: 15px;
-            background: #fff0f5;
-            border-radius: 8px;
-            display: none;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
+        #toast {
+    visibility: hidden;
+    min-width: 250px;
+    padding: 15px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    z-index: 1000;
+}
+
+#toast.success {
+    background: #28a745;
+}
+
+#toast.error {
+    background: #dc3545;
+}
+
+#toast.show {
+    visibility: visible;
+}
+        
     </style>
 </head>
 
 <body>
-
+<div id="toast"></div>
 <div class="container">
 
     <h2>QR Code Invoice Details</h2>
@@ -76,6 +92,16 @@
 </div>
 
 <script>
+    function showToast(message, type) {
+    const toast = document.getElementById('toast');
+
+    toast.innerText = message;
+    toast.className = 'show ' + type;
+
+    setTimeout(function() {
+        toast.className = '';
+    }, 3000);
+}
     document.getElementById('qrForm').addEventListener('submit', async function(e) {
 
         e.preventDefault();
@@ -93,14 +119,15 @@
 
         const data = await response.json();
 
-        result.style.display = 'block';
+      result.style.display = 'block';
 
-        if (data.status === 'success') {
-            result.innerText = data.qr_data;
-        } else {
-            result.innerText = data.message;
-        }
-
+if (data.status === 'success') {
+    result.innerText = data.qr_data;
+    showToast('QR Code decoded successfully!', 'success');
+} else {
+    result.innerText = data.message;
+    showToast(data.message, 'error');
+}
     });
 </script>
 
