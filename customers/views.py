@@ -774,6 +774,8 @@ def decode_qr(request):
         'message': 'Please upload a QR code image.'
     })
 
+def qr_decode_page(request):
+    return render(request, 'customers/qr_decode.html')
 
 @csrf_exempt
 @require_POST

@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Invoice Details</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff0f5;
+            margin: 0;
+            padding: 40px 15px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #d63384;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #d63384;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background: #fff0f5;
+            border-radius: 8px;
+            display: none;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>QR Code Invoice Details</h2>
+
+    <form id="qrForm">
+
+        <input type="file" id="qrImage" accept="image/*" required>
+
+        <button type="submit">Decode QR Code</button>
+
+    </form>
+
+    <div id="result"></div>
+
+</div>
+
+<script>
+    document.getElementById('qrForm').addEventListener('submit', async function(e) {
+
+        e.preventDefault();
+
+        const file = document.getElementById('qrImage').files[0];
+        const result = document.getElementById('result');
+
+        const formData = new FormData();
+        formData.append('qr_image', file);
+
+        const response = await fetch('/decode-qr/', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        result.style.display = 'block';
+
+        if (data.status === 'success') {
+            result.innerText = data.qr_data;
+        } else {
+            result.innerText = data.message;
+        }
+
+    });
+</script>
+
+</body>
+</html>
