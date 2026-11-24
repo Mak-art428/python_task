@@ -60,7 +60,11 @@
         <h2>Admin Dashboard</h2>
         <p class="mb-0">Welcome to Advance Billing System with QR</p>
     </div>
-
+    
+     <button onclick="logoutUser()" class="btn btn-danger">
+        Logout
+    </button>
+</div>
     <div class="row g-4">
 
         <div class="col-md-3">
@@ -120,6 +124,20 @@
     </div>
 
 </div>
+<script>
+async function logoutUser() {
 
+    const response = await fetch('/api/logout/', {
+        method: 'POST',
+        credentials: 'same-origin'
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        window.location.href = '/login/';
+    }
+}
+</script>
 </body>
 </html>

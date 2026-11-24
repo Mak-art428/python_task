@@ -40,8 +40,12 @@ from django.db.models import Sum
 
 
 import cv2
-import numpy as np
+import numpy as npq
 
+
+from django.contrib.auth.decorators import login_required
+
+@login_required(login_url='login_page')
 def admin_dashboard(request):
     total_customers = Customer.objects.count()
     total_products = Product.objects.count()
@@ -65,8 +69,7 @@ def admin_dashboard(request):
         context
 )
 
-
-
+@login_required(login_url='login_page')
 def reports_page(request):
 
     start_date = request.GET.get('start_date', '').strip()
@@ -166,6 +169,8 @@ def download_report_pdf(request):
 
     return response
 
+
+@login_required(login_url='login_page')
 def customer_list(request):
 
     search = request.GET.get('search', '')
@@ -180,6 +185,8 @@ def customer_list(request):
                      'search': search
                     })
 
+
+@login_required(login_url='login_page')
 def update_customer(request, id):
     customer = get_object_or_404(Customer, id=id)
 
@@ -203,6 +210,8 @@ def update_customer(request, id):
         }
     )
 
+
+@login_required(login_url='login_page')
 def delete_product(request, id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=id)
@@ -214,7 +223,7 @@ def delete_product(request, id):
     return redirect('product_list')
 
 
-
+@login_required(login_url='login_page')
 def add_product(request):
     success = ''
 
@@ -242,7 +251,7 @@ def add_product(request):
         }
     )
 
-
+@login_required(login_url='login_page') 
 def product_list(request):
     search = request.GET.get('search', '').strip()
 
@@ -270,6 +279,7 @@ def product_list(request):
 
 
 # Create your views here.
+@login_required(login_url='login_page')
 def update_product(request, id):
     product = get_object_or_404(Product, id=id)
 
@@ -291,6 +301,7 @@ def update_product(request, id):
         }
     )
 
+@login_required(login_url='login_page')
 def delete_customer(request, id):
     customer = get_object_or_404(Customer, id=id)
 
@@ -301,7 +312,7 @@ def delete_customer(request, id):
     return redirect('customer_list')
 
 
-
+@login_required(login_url='login_page')
 def create_invoice(request):
     products_data = list(
         Product.objects.values('id', 'name', 'price', 'gst_rate')
@@ -438,7 +449,7 @@ def generate_invoice_pdf(request, id):
 
     return response
 
-
+@login_required(login_url='login_page')
 def invoice_list(request):
     invoices = Invoice.objects.all().order_by('-id')
 
@@ -455,7 +466,7 @@ def invoice_list(request):
         }
     )
 
-
+@login_required(login_url='login_page')
 def generate_invoice_qr(invoice):
     product_summary = ""
 
@@ -774,6 +785,7 @@ def decode_qr(request):
         'message': 'Please upload a QR code image.'
     })
 
+@login_required(login_url='login_page')
 def qr_decode_page(request):
     return render(request, 'customers/qr_decode.html')
 
@@ -872,3 +884,7 @@ def logout_api(request):
         'success': True,
         'message': 'Logout successful.'
     }, status=200)
+
+
+def login_page(request):
+    return render(request, 'customers/login.html')

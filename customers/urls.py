@@ -45,4 +45,6 @@ path('api/distributor/login/', views.distributor_login_api, name='distributor_lo
 path('api/logout/', views.logout_api, name='logout_api'),
 
 path('qr-decode-page/', views.qr_decode_page, name='qr_decode_page'),
+
+path('login/', views.login_page, name='login_page'),
 ]
