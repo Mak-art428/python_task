@@ -90,6 +90,9 @@
                         </td>
 
                         <td>
+                            <a href="{% url 'preview_invoice' invoice.id %}" class="btn btn-info btn-sm">
+    Preview Invoice
+</a>
                             <a href="{% url 'generate_invoice_pdf' invoice.id %}"
                                class="btn btn-primary btn-sm">
                                 Download PDF

@@ -467,6 +467,21 @@ def invoice_list(request):
     )
 
 @login_required(login_url='login_page')
+def preview_invoice(request, id):
+    invoice = get_object_or_404(Invoice, id=id)
+
+    context = {
+        'invoice': invoice,
+        'items': invoice.items.all(),
+    }
+
+    return render(
+        request,
+        'customers/invoice_preview.html',
+        context
+    )
+
+
 def generate_invoice_qr(invoice):
     product_summary = ""
 
