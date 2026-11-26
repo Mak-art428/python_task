@@ -93,10 +93,11 @@
                             <a href="{% url 'preview_invoice' invoice.id %}" class="btn btn-info btn-sm">
     Preview Invoice
 </a>
-                            <a href="{% url 'generate_invoice_pdf' invoice.id %}"
-                               class="btn btn-primary btn-sm">
-                                Download PDF
-                            </a>
+            <a href="{% url 'generate_invoice_pdf' invoice.id %}"
+   class="btn btn-primary btn-sm"
+   onclick="downloadInvoice(event, this.href)">
+    Download PDF
+</a>
                         </td>
                     </tr>
 
@@ -161,6 +162,41 @@
 
     </div>
 </div>
+<script>
+async function downloadInvoice(event, url) {
+    event.preventDefault();
 
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("PDF generation failed");
+        }
+
+        const blob = await response.blob();
+
+        if (blob.type !== "application/pdf") {
+            throw new Error("Invalid PDF file");
+        }
+
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = "invoice.pdf";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(downloadUrl);
+
+        alert("Invoice PDF downloaded successfully!");
+
+    } catch (error) {
+        alert("Failed to download Invoice PDF. Please try again.");
+    }
+}
+</script>
 </body>
 </html>

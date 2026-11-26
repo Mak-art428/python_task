@@ -425,29 +425,40 @@ def create_invoice(request):
         }
     )
 
+
 def generate_invoice_pdf(request, id):
-    invoice = get_object_or_404(Invoice, id=id)
+    try:
+        invoice = get_object_or_404(Invoice, id=id)
 
-    template_path = 'customers/invoice_pdf.html'
-    context = {
-        'invoice': invoice,
-        'items': invoice.items.all(),
-    }
+        template_path = 'customers/invoice_pdf.html'
+        context = {
+            'invoice': invoice,
+            'items': invoice.items.all(),
+        }
 
-    template = get_template(template_path)
-    html = template.render(context)
+        template = get_template(template_path)
+        html = template.render(context)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = (
-        f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
-    )
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = (
+            f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
+        )
 
-    pdf_status = pisa.CreatePDF(html, dest=response)
+        pdf_status = pisa.CreatePDF(html, dest=response)
 
-    if pdf_status.err:
-        return HttpResponse('Error while generating PDF')
+        if pdf_status.err:
+            return HttpResponse(
+                'Error while generating PDF',
+                status=500
+            )
 
-    return response
+        return response
+
+    except Exception:
+        return HttpResponse(
+            'Something went wrong while generating PDF',
+            status=500
+        )
 
 @login_required(login_url='login_page')
 def invoice_list(request):
